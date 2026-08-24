@@ -8,7 +8,7 @@ export const meridians = [
     code: "LU",
     hanzi: "手太阴肺经",
     pinyin: "Shǒu Tài Yīn Fèi Jīng",
-    indonesian: "Meridian Paru-paru",
+    indonesian: "Meridian Taiyin Tangan Paru-Paru",
     english: "Lung",
     points: [
       { num: 1, hanzi: "中府", pinyin: "Zhōng Fǔ" },
@@ -28,7 +28,7 @@ export const meridians = [
     code: "LI",
     hanzi: "手阳明大肠经",
     pinyin: "Shǒu Yáng Míng Dà Cháng Jīng",
-    indonesian: "Meridian Usus Besar",
+    indonesian: "Meridian Yangming Tangan Usus Besar",
     english: "Large Intestine",
     points: [
       { num: 1, hanzi: "商阳", pinyin: "Shāng Yáng" },
@@ -57,7 +57,7 @@ export const meridians = [
     code: "ST",
     hanzi: "足阳明胃经",
     pinyin: "Zú Yáng Míng Wèi Jīng",
-    indonesian: "Meridian Lambung",
+    indonesian: "Meridian Yangming Kaki Lambung",
     english: "Stomach",
     points: [
       { num: 1, hanzi: "承泣", pinyin: "Chéng Qì" },
@@ -111,7 +111,7 @@ export const meridians = [
     code: "SP",
     hanzi: "足太阴脾经",
     pinyin: "Zú Tài Yīn Pí Jīng",
-    indonesian: "Meridian Limpa",
+    indonesian: "Meridian Taiyin Kaki Limpa",
     english: "Spleen",
     points: [
       { num: 1, hanzi: "隐白", pinyin: "Yǐn Bái" },
@@ -141,7 +141,7 @@ export const meridians = [
     code: "HT",
     hanzi: "手少阴心经",
     pinyin: "Shǒu Shǎo Yīn Xīn Jīng",
-    indonesian: "Meridian Jantung",
+    indonesian: "Meridian Shaoyin Tangan Jantung",
     english: "Heart",
     points: [
       { num: 1, hanzi: "极泉", pinyin: "Jí Quán" },
@@ -159,7 +159,7 @@ export const meridians = [
     code: "SI",
     hanzi: "手太阳小肠经",
     pinyin: "Shǒu Tài Yáng Xiǎo Cháng Jīng",
-    indonesian: "Meridian Usus Kecil",
+    indonesian: "Meridian Taiyang Tangan Usus Kecil",
     english: "Small Intestine",
     points: [
       { num: 1, hanzi: "少泽", pinyin: "Shào Zé" },
@@ -187,7 +187,7 @@ export const meridians = [
     code: "BL",
     hanzi: "足太阳膀胱经",
     pinyin: "Zú Tài Yáng Páng Guāng Jīng",
-    indonesian: "Meridian Kandung Kemih",
+    indonesian: "Meridian Taiyang Kaki Kandung Kemih",
     english: "Bladder",
     points: [
       { num: 1, hanzi: "睛明", pinyin: "Jīng Míng" },
@@ -263,7 +263,7 @@ export const meridians = [
     code: "KI",
     hanzi: "足少阴肾经",
     pinyin: "Zú Shǎo Yīn Shèn Jīng",
-    indonesian: "Meridian Ginjal",
+    indonesian: "Meridian Shaoyin Kaki Ginjal",
     english: "Kidney",
     points: [
       { num: 1, hanzi: "涌泉", pinyin: "Yǒng Quán" },
@@ -299,7 +299,7 @@ export const meridians = [
     code: "PC",
     hanzi: "手厥阴心包经",
     pinyin: "Shǒu Jué Yīn Xīn Bāo Jīng",
-    indonesian: "Meridian Perikardium",
+    indonesian: "Meridian Jueyin Tangan Selaput Jantung",
     english: "Pericardium",
     points: [
       { num: 1, hanzi: "天池", pinyin: "Tiān Chí" },
@@ -317,7 +317,7 @@ export const meridians = [
     code: "SJ",
     hanzi: "手少阳三焦经",
     pinyin: "Shǒu Shào Yáng Sān Jiāo Jīng",
-    indonesian: "Meridian San Jiao",
+    indonesian: "Meridian Shaoyang Tangan San Jiao",
     english: "San Jiao",
     points: [
       { num: 1, hanzi: "关冲", pinyin: "Guān Chōng" },
@@ -349,7 +349,7 @@ export const meridians = [
     code: "GB",
     hanzi: "足少阳胆经",
     pinyin: "Zú Shǎo Yáng Dǎn Jīng",
-    indonesian: "Meridian Empedu",
+    indonesian: "Meridian Shaoyang Kaki Kandung Empedu",
     english: "Gallbladder",
     points: [
       { num: 1, hanzi: "瞳子髎", pinyin: "Tóng Zǐ Liáo" },
@@ -402,7 +402,7 @@ export const meridians = [
     code: "LV",
     hanzi: "足厥阴肝经",
     pinyin: "Zú Jué Yīn Gān Jīng",
-    indonesian: "Meridian Hati",
+    indonesian: "Meridian Jueyin Kaki Hati",
     english: "Liver",
     points: [
       { num: 1, hanzi: "大敦", pinyin: "Dà Dūn" },
@@ -425,7 +425,7 @@ export const meridians = [
     code: "REN",
     hanzi: "任脉",
     pinyin: "Rèn Mài",
-    indonesian: "Meridian Ren",
+    indonesian: "Meridian Ren Mai",
     english: "Conception Vessel",
     points: [
       { num: 1, hanzi: "会阴", pinyin: "Huì Yīn" },
@@ -458,7 +458,7 @@ export const meridians = [
     code: "DU",
     hanzi: "督脉",
     pinyin: "Dū Mài",
-    indonesian: "Meridian Du",
+    indonesian: "Meridian Du Mai",
     english: "Governing Vessel",
     points: [
       { num: 1, hanzi: "长强", pinyin: "Cháng Qiáng" },
