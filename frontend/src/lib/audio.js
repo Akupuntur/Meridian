@@ -184,9 +184,9 @@ const speakHanzi = async (hanzi, { onStart, onEnd, onError }) => {
     return { stop: () => {} };
   }
 
-  // Teaching-mode delivery:
-  //   - Rate 0.65 (~65% of default) so tones are clearly audible.
-  //   - Speak each Han character as its own utterance with ~700ms silence
+  // Teaching-mode delivery (classroom pace for beginner Indonesian learners):
+  //   - Rate 0.55 (~55% of default) so tones are clearly audible.
+  //   - Speak each Han character as its own utterance with ~1000ms silence
   //     between them so beginners can imitate syllable-by-syllable.
   // Non-CJK characters (letters, digits, punctuation) are ignored — this
   // audio is a Mandarin pronunciation drill, not a bilingual read-aloud.
@@ -197,8 +197,8 @@ const speakHanzi = async (hanzi, { onStart, onEnd, onError }) => {
     return { stop: () => {} };
   }
 
-  const RATE = 0.65;
-  const PAUSE_MS = 700;
+  const RATE = 0.55;
+  const PAUSE_MS = 1000;
 
   window.speechSynthesis.cancel();
 
