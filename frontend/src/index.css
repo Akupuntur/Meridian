@@ -1,0 +1,108 @@
+@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400;1,500&family=Outfit:wght@300;400;500;600&family=Noto+Serif+SC:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+    margin: 0;
+    font-family: "Outfit", -apple-system, BlinkMacSystemFont, "Segoe UI",
+        sans-serif;
+    background-color: #fdfbf7;
+    color: #233127;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+    font-family: "JetBrains Mono", Menlo, Monaco, Consolas, "Courier New",
+        monospace;
+}
+
+@layer base {
+    :root {
+        --background: 40 40% 98%;
+        --foreground: 140 15% 16%;
+        --card: 0 0% 100%;
+        --card-foreground: 140 15% 16%;
+        --popover: 0 0% 100%;
+        --popover-foreground: 140 15% 16%;
+        --primary: 140 18% 36%;
+        --primary-foreground: 40 40% 98%;
+        --secondary: 90 12% 65%;
+        --secondary-foreground: 140 15% 16%;
+        --muted: 40 20% 94%;
+        --muted-foreground: 140 8% 44%;
+        --accent: 14 45% 60%;
+        --accent-foreground: 40 40% 98%;
+        --destructive: 0 62% 50%;
+        --destructive-foreground: 0 0% 98%;
+        --border: 90 15% 88%;
+        --input: 90 15% 88%;
+        --ring: 140 18% 36%;
+        --chart-1: 140 18% 36%;
+        --chart-2: 90 12% 65%;
+        --chart-3: 14 45% 60%;
+        --chart-4: 43 40% 66%;
+        --chart-5: 200 20% 40%;
+        --radius: 1rem;
+    }
+}
+
+@layer base {
+    * {
+        @apply border-border;
+    }
+    body {
+        @apply bg-background text-foreground;
+    }
+}
+
+@layer utilities {
+    .font-heading {
+        font-family: "Cormorant Garamond", serif;
+    }
+    .font-body {
+        font-family: "Outfit", sans-serif;
+    }
+    .font-hanzi {
+        font-family: "Noto Serif SC", "Songti SC", "SimSun", serif;
+        font-weight: 500;
+    }
+    .font-mono {
+        font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo,
+            monospace;
+    }
+}
+
+@layer base {
+    [data-debug-wrapper="true"] {
+        display: contents !important;
+    }
+
+    [data-debug-wrapper="true"] > * {
+        margin-left: inherit;
+        margin-right: inherit;
+        margin-top: inherit;
+        margin-bottom: inherit;
+        padding-left: inherit;
+        padding-right: inherit;
+        padding-top: inherit;
+        padding-bottom: inherit;
+        column-gap: inherit;
+        row-gap: inherit;
+        gap: inherit;
+        border-left-width: inherit;
+        border-right-width: inherit;
+        border-top-width: inherit;
+        border-bottom-width: inherit;
+        border-left-style: inherit;
+        border-right-style: inherit;
+        border-top-style: inherit;
+        border-bottom-style: inherit;
+        border-left-color: inherit;
+        border-right-color: inherit;
+        border-top-color: inherit;
+        border-bottom-color: inherit;
+    }
+}

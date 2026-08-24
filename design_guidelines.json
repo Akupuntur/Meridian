@@ -1,0 +1,58 @@
+{
+  "theme": "Light theme (Organic & Earthy). Calm jade/sage green with ivory. Avoid standard SaaS appearance.",
+  "typography": {
+    "fonts": {
+      "headings": "Cormorant Garamond, serif",
+      "body": "Outfit, sans-serif",
+      "hanzi": "Noto Serif SC, serif",
+      "code": "JetBrains Mono, monospace"
+    },
+    "rules": {
+      "h1": "text-4xl sm:text-5xl font-light tracking-tight text-[#233127]",
+      "h2": "text-2xl sm:text-3xl font-medium tracking-tight text-[#233127]",
+      "hanzi_display": "text-4xl sm:text-5xl font-serif text-[#4A6B53] mb-2 leading-tight",
+      "pinyin_display": "text-lg sm:text-xl font-body text-[#233127]/80 tracking-wide",
+      "code_label": "text-xs font-mono tracking-[0.2em] uppercase text-[#A3B19B]"
+    }
+  },
+  "colors": {
+    "background": "#FDFBF7",
+    "surface": "#FFFFFF",
+    "surface_muted": "#F3EFEB",
+    "primary": "#4A6B53",
+    "primary_light": "#A3B19B",
+    "text_main": "#233127",
+    "text_muted": "#697A6D",
+    "accent": "#C87964",
+    "border": "#E2E7DE"
+  },
+  "components": {
+    "meridian_card": "bg-surface rounded-3xl p-8 border border-border/50 hover:-translate-y-1 transition-all duration-300 shadow-[0_4px_24px_rgba(74,107,83,0.06)] hover:shadow-[0_12px_32px_rgba(74,107,83,0.12)] flex flex-col justify-between cursor-pointer group",
+    "point_card": "bg-surface rounded-2xl p-6 mb-4 flex flex-row items-center justify-between border border-border/30 shadow-sm transition-colors hover:border-[#A3B19B]/50",
+    "audio_button": "idle: bg-[#A3B19B]/10 text-[#4A6B53] hover:bg-[#4A6B53] hover:text-white rounded-full p-4 transition-all duration-300. active: bg-[#C87964] text-white ring-4 ring-[#C87964]/30 animate-pulse.",
+    "sticky_header": "sticky top-0 z-50 bg-[#FDFBF7]/80 backdrop-blur-xl border-b border-[#E2E7DE] px-4 py-4 sm:px-8 sm:py-6"
+  },
+  "layouts": {
+    "homepage": "Mobile-first standard flow. Container max-w-5xl mx-auto px-4 py-16 sm:py-24. Use CSS Grid: grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8.",
+    "detail_page": "Single column narrow layout for focused reading. max-w-3xl mx-auto px-4 pb-24 pt-8."
+  },
+  "accessibility": {
+    "contrast": "Ensure WCAG AA contrast. Text colors must be #233127 against #FDFBF7.",
+    "test_ids": "Add data-testid='meridian-card-[code]', data-testid='point-card-[code]', data-testid='audio-button-[code]' to elements."
+  },
+  "instructions_to_main_agent": {
+    "localization": "UI must use Bahasa Indonesia. E.g., '14 Meridian TCM', 'Kembali' for back button.",
+    "audio_fallback": "Use sonner toast for errors: 'Audio tidak tersedia di perangkat ini'.",
+    "speech_api": "Use window.speechSynthesis with 'zh-CN' lang. Bind state to audio button to show visual feedback (pulse) when speaking.",
+    "data_population": "Include all standard points for the 14 meridians. Hardcode the data structure cleanly in a separate file (e.g., data/meridians.js)."
+  },
+  "UNIVERSAL_GUIDELINES_FOR_MAIN_AGENT": [
+    "NEVER use generic 'AI slop' gradients or pure generic blue. Use the provided organic earthy palette.",
+    "Do not center align the app container. No .App { text-align: center; }.",
+    "All interactive elements MUST include a data-testid attribute.",
+    "Use sonner for toast notifications.",
+    "Use 2-3x more spacing than feels comfortable. Allow the typography (Hanzi) to breathe.",
+    "For icons, use lucide-react.",
+    "Do not use complete transparent background in header. Use backdrop-blur-xl with bg-[#FDFBF7]/80."
+  ]
+}

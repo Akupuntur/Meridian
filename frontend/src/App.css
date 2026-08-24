@@ -1,0 +1,13 @@
+/* App-level styles. The app is styled primarily with Tailwind + design tokens. */
+.App {
+    text-align: left;
+    min-height: 100vh;
+    background-color: #FDFBF7;
+    color: #233127;
+}
+
+/* Selection color aligned with the sage/jade palette. */
+::selection {
+    background: rgba(74, 107, 83, 0.18);
+    color: #233127;
+}

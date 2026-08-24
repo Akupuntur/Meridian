@@ -1,0 +1,21 @@
+{
+  "summary": "First frontend testing pass for TCM Meridian pronunciation app. All 11 critical checks passed: homepage grid renders 14 meridian cards with correct testids, LU card navigates to /meridian/lu, detail page renders header (hanzi + pinyin) and points list, all 14 meridians have EXACT expected point counts (LU=11, LI=20, ST=45, SP=21, HT=9, SI=19, BL=67, KI=27, PC=9, SJ=23, GB=44, LV=14, REN=24, DU=28 = 331 total points), PointCard shows required code/hanzi/pinyin/spaced-code/audio-button format, audio button on LU1 triggers Sonner toast with 'Audio tidak tersedia di perangkat ini' in headless env, back-to-home link works, invalid /meridian/xyz redirects to /, mobile 375px viewport has no horizontal overflow.",
+  "tested_scope": ["frontend", "integration"],
+  "passed": [
+    "Homepage loads at / and [data-testid='meridian-grid'] shows all 14 meridian cards (LU, LI, ST, SP, HT, SI, BL, KI, PC, SJ, GB, LV, REN, DU)",
+    "Meridian card displays code, Hanzi, Pinyin, Indonesian name, English name (verified LU card content)",
+    "Clicking meridian-card-LU navigates to /meridian/lu",
+    "Detail page renders meridian-header, meridian-hanzi ('手太阴肺经'), meridian-pinyin ('Shǒu Tài Yīn Fèi Jīng') and points-list",
+    "All 14 meridians have EXACT expected point counts: LU=11, LI=20, ST=45, SP=21, HT=9, SI=19, BL=67, KI=27, PC=9, SJ=23, GB=44, LV=14, REN=24, DU=28",
+    "PointCard for LU1 shows code 'LU1', Hanzi '中府', Pinyin 'Zhōng Fǔ', spaced code 'LU 1', and audio button audio-button-LU1",
+    "Audio button click on LU1 shows Sonner toast: 'Audio tidak tersedia di perangkat ini. Suara Mandarin (zh-CN) belum terpasang...'",
+    "back-to-home link returns to homepage /",
+    "Invalid URL /meridian/xyz redirects to / and shows meridian grid",
+    "Mobile viewport 375x800: no horizontal overflow, cards stack single-column"
+  ],
+  "failed": [],
+  "action_items": [],
+  "success_rate": {"backend": "skipped", "frontend": "100%"},
+  "retest_needed": false,
+  "full_testing_deferred": true
+}
