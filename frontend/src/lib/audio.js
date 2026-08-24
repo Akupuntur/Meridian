@@ -1,6 +1,16 @@
-// Audio abstraction. Currently uses Web Speech API for Mandarin (zh-CN).
-// Later, this can be replaced with pre-recorded MP3s without changing the UI.
-// If a point has `audioUrl`, an <Audio> element will be preferred over TTS.
+// Audio system for TCM point pronunciation.
+//
+// Playback priority for each acupuncture point:
+//   1. Pre-recorded MP3 (per-point `audioUrl` or entry in `audioSources.js`).
+//   2. Web Speech API using a native Mandarin (zh-CN) voice.
+//   3. If neither is available -> onError('no-mandarin-voice' | 'speech-not-supported').
+//
+// The synthesizer speaks ONLY the Hanzi string passed in. It never speaks
+// Pinyin, point codes, English, or Indonesian text. Non-Mandarin voices are
+// intentionally rejected so the app does not mispronounce Chinese characters
+// with an Indonesian or English voice.
+
+import { resolveAudioSource } from "@/lib/audioSources";
 
 const isBrowser = typeof window !== "undefined";
 
@@ -9,27 +19,114 @@ export const isSpeechSupported = () =>
   "speechSynthesis" in window &&
   typeof window.SpeechSynthesisUtterance === "function";
 
-// Load voices (some browsers populate them asynchronously).
+// ---------------------------------------------------------------------------
+// Voice loading
+// ---------------------------------------------------------------------------
+
+// Some browsers populate voices asynchronously (Chrome/Edge). We wait for the
+// `voiceschanged` event, poll for a short window, then resolve with whatever
+// is available so callers can decide.
 const loadVoices = () =>
   new Promise((resolve) => {
     if (!isSpeechSupported()) return resolve([]);
-    const existing = window.speechSynthesis.getVoices();
-    if (existing && existing.length) return resolve(existing);
-    const handler = () => {
-      window.speechSynthesis.removeEventListener("voiceschanged", handler);
-      resolve(window.speechSynthesis.getVoices() || []);
+
+    const initial = window.speechSynthesis.getVoices();
+    if (initial && initial.length) return resolve(initial);
+
+    let settled = false;
+    const finish = (voices) => {
+      if (settled) return;
+      settled = true;
+      window.speechSynthesis.removeEventListener("voiceschanged", onChanged);
+      clearInterval(pollId);
+      clearTimeout(timeoutId);
+      resolve(voices || []);
     };
-    window.speechSynthesis.addEventListener("voiceschanged", handler);
-    // Safety timeout
-    setTimeout(() => resolve(window.speechSynthesis.getVoices() || []), 800);
+
+    const onChanged = () => {
+      const v = window.speechSynthesis.getVoices();
+      if (v && v.length) finish(v);
+    };
+    window.speechSynthesis.addEventListener("voiceschanged", onChanged);
+
+    // Fallback: poll every 100ms up to ~2s. Some Safari builds never fire
+    // `voiceschanged` after the initial empty read.
+    const pollId = setInterval(() => {
+      const v = window.speechSynthesis.getVoices();
+      if (v && v.length) finish(v);
+    }, 100);
+
+    const timeoutId = setTimeout(() => {
+      finish(window.speechSynthesis.getVoices() || []);
+    }, 2000);
   });
+
+// ---------------------------------------------------------------------------
+// Voice selection (strict Mandarin only)
+// ---------------------------------------------------------------------------
+
+// Known high-quality Mandarin voice name fragments across platforms.
+const PREFERRED_NAME_FRAGMENTS = [
+  "Google 普通话",       // Chrome desktop / Android
+  "Google Mandarin",
+  "Microsoft Xiaoxiao",  // Windows 10+ neural
+  "Microsoft Xiaoyi",
+  "Microsoft Yunxi",
+  "Microsoft Yunyang",
+  "Microsoft Yaoyao",    // Windows 8/10
+  "Microsoft Huihui",
+  "Microsoft Kangkang",
+  "Tingting",            // macOS / iOS
+  "Ting-Ting",
+];
+
+const normLang = (l) => String(l || "").toLowerCase().replace(/_/g, "-");
+
+// Bucket a voice by how close it is to native zh-CN Mandarin.
+// Lower score = better. Cantonese (zh-HK, zh-yue) is excluded entirely.
+const scoreVoice = (voice) => {
+  const lang = normLang(voice.lang);
+
+  // Reject Cantonese and any non-Chinese language outright.
+  if (!lang.startsWith("zh")) return null;
+  if (lang.startsWith("zh-hk") || lang.startsWith("zh-yue")) return null;
+
+  let bucket;
+  if (lang === "zh-cn" || lang.startsWith("zh-cn-")) bucket = 0;
+  else if (lang.startsWith("zh-hans")) bucket = 1;
+  else if (lang === "zh") bucket = 2;
+  else if (lang.startsWith("zh-sg")) bucket = 3; // Singapore Mandarin
+  else if (lang.startsWith("zh-tw") || lang.startsWith("zh-hant")) bucket = 4;
+  else bucket = 5;
+
+  // Prefer local/offline voices — they load instantly and are usually higher
+  // fidelity than remote/network voices.
+  const localBonus = voice.localService === false ? 0.5 : 0;
+
+  // Prefer well-known Mandarin voice names.
+  const name = String(voice.name || "");
+  const nameHit = PREFERRED_NAME_FRAGMENTS.some((frag) => name.includes(frag));
+  const nameBonus = nameHit ? -0.25 : 0;
+
+  // Prefer the browser default zh voice when everything else is equal.
+  const defaultBonus = voice.default ? -0.1 : 0;
+
+  return bucket + localBonus + nameBonus + defaultBonus;
+};
 
 const pickMandarinVoice = (voices) => {
   if (!voices || !voices.length) return null;
-  const zhCN = voices.find((v) => /zh[-_]CN/i.test(v.lang));
-  if (zhCN) return zhCN;
-  const zhAny = voices.find((v) => /^zh/i.test(v.lang));
-  return zhAny || null;
+  let best = null;
+  let bestScore = Infinity;
+  for (const v of voices) {
+    const s = scoreVoice(v);
+    if (s === null) continue;
+    if (s < bestScore) {
+      bestScore = s;
+      best = v;
+    }
+  }
+  return best;
 };
 
 export const hasMandarinVoice = async () => {
@@ -38,11 +135,89 @@ export const hasMandarinVoice = async () => {
   return !!pickMandarinVoice(voices);
 };
 
+// ---------------------------------------------------------------------------
+// Source resolution (MP3 preferred, TTS fallback)
+// ---------------------------------------------------------------------------
+
 /**
- * Play the pronunciation of a Hanzi phrase.
+ * Resolve the best available audio source for a point.
+ * Priority:
+ *   1. Explicit `audioUrl` (per-point override, e.g. from data file).
+ *   2. Static MP3 mapping in `audioSources.js` (populated as recordings ship).
+ *   3. `null` -> caller should use TTS.
+ */
+export const resolveAudioUrl = ({ audioUrl, meridianCode, pointNum }) => {
+  if (audioUrl) return audioUrl;
+  return resolveAudioSource(meridianCode, pointNum) || null;
+};
+
+// ---------------------------------------------------------------------------
+// Playback
+// ---------------------------------------------------------------------------
+
+const playAudioFile = (url, { onStart, onEnd, onError }) => {
+  const audio = new Audio(url);
+  audio.preload = "auto";
+  audio.addEventListener("play", () => onStart && onStart());
+  audio.addEventListener("ended", () => onEnd && onEnd());
+  audio.addEventListener("error", () => {
+    onError && onError(new Error("audio-file-error"));
+  });
+  const playPromise = audio.play();
+  if (playPromise && typeof playPromise.catch === "function") {
+    playPromise.catch((e) => onError && onError(e));
+  }
+  return { stop: () => audio.pause() };
+};
+
+const speakHanzi = async (hanzi, { onStart, onEnd, onError }) => {
+  if (!isSpeechSupported()) {
+    onError && onError(new Error("speech-not-supported"));
+    return { stop: () => {} };
+  }
+
+  const voices = await loadVoices();
+  const voice = pickMandarinVoice(voices);
+  if (!voice) {
+    // Strict rule: never speak Chinese characters with a non-Mandarin voice.
+    onError && onError(new Error("no-mandarin-voice"));
+    return { stop: () => {} };
+  }
+
+  // Cancel anything currently speaking so buttons behave predictably.
+  window.speechSynthesis.cancel();
+
+  const utter = new window.SpeechSynthesisUtterance(hanzi);
+  utter.voice = voice;
+  utter.lang = voice.lang || "zh-CN";
+  utter.rate = 0.85;
+  utter.pitch = 1;
+  utter.volume = 1;
+
+  utter.onstart = () => onStart && onStart();
+  utter.onend = () => onEnd && onEnd();
+  utter.onerror = (event) => {
+    if (event && (event.error === "canceled" || event.error === "interrupted")) {
+      return; // expected when a new utterance starts
+    }
+    onError && onError(new Error(event?.error || "speech-error"));
+  };
+
+  window.speechSynthesis.speak(utter);
+  return { stop: () => window.speechSynthesis.cancel() };
+};
+
+/**
+ * Play the pronunciation of a single acupuncture point.
+ *
+ * Only the Hanzi string is ever sent to the speech engine. Pinyin, point
+ * codes, Indonesian, and English are never spoken.
+ *
  * @param {Object} params
- * @param {string} params.text - Chinese characters to speak.
- * @param {string} [params.audioUrl] - Optional pre-recorded audio URL (future).
+ * @param {string} params.text         Hanzi to pronounce (required).
+ * @param {string} [params.audioUrl]   Explicit MP3 URL (highest priority).
+ * @param {string} [params.meridianCode] Meridian code for MP3 lookup.
+ * @param {number} [params.pointNum]   Point number for MP3 lookup.
  * @param {() => void} [params.onStart]
  * @param {() => void} [params.onEnd]
  * @param {(err: Error) => void} [params.onError]
@@ -51,60 +226,15 @@ export const hasMandarinVoice = async () => {
 export const playPronunciation = async ({
   text,
   audioUrl,
+  meridianCode,
+  pointNum,
   onStart,
   onEnd,
   onError,
 }) => {
-  // Future path: pre-recorded audio
-  if (audioUrl) {
-    const audio = new Audio(audioUrl);
-    audio.addEventListener("play", () => onStart && onStart());
-    audio.addEventListener("ended", () => onEnd && onEnd());
-    audio.addEventListener("error", () => {
-      const err = new Error("audio-file-error");
-      onError && onError(err);
-    });
-    try {
-      await audio.play();
-    } catch (e) {
-      onError && onError(e);
-    }
-    return { stop: () => audio.pause() };
+  const resolvedUrl = resolveAudioUrl({ audioUrl, meridianCode, pointNum });
+  if (resolvedUrl) {
+    return playAudioFile(resolvedUrl, { onStart, onEnd, onError });
   }
-
-  if (!isSpeechSupported()) {
-    const err = new Error("speech-not-supported");
-    onError && onError(err);
-    return { stop: () => {} };
-  }
-
-  const voices = await loadVoices();
-  const voice = pickMandarinVoice(voices);
-  if (!voice) {
-    const err = new Error("no-mandarin-voice");
-    onError && onError(err);
-    return { stop: () => {} };
-  }
-
-  // Cancel anything currently speaking so buttons behave predictably.
-  window.speechSynthesis.cancel();
-
-  const utter = new window.SpeechSynthesisUtterance(text);
-  utter.voice = voice;
-  utter.lang = voice.lang || "zh-CN";
-  utter.rate = 0.85;
-  utter.pitch = 1;
-
-  utter.onstart = () => onStart && onStart();
-  utter.onend = () => onEnd && onEnd();
-  utter.onerror = (event) => {
-    // "canceled" and "interrupted" are expected when a new utterance starts.
-    if (event && (event.error === "canceled" || event.error === "interrupted")) {
-      return;
-    }
-    onError && onError(new Error(event?.error || "speech-error"));
-  };
-
-  window.speechSynthesis.speak(utter);
-  return { stop: () => window.speechSynthesis.cancel() };
+  return speakHanzi(text, { onStart, onEnd, onError });
 };

@@ -30,7 +30,8 @@ ivory theme.
 - Meridian detail route `/meridian/:code` (`MeridianDetailPage.jsx`) with
   redirect to `/` for unknown codes.
 - `MeridianCard`, `PointCard`, `AudioButton`, `SiteHeader` components.
-- Full dataset: 331 standard acupuncture points across 14 meridians.
+- Full dataset: 361 standard acupuncture points across 14 meridians
+  (12 primary meridians + Ren Mai 24 + Du Mai 28).
 - Web Speech API integration with visual playing state (pulse) and Sonner
   toast fallback ("Audio tidak tersedia di perangkat ini").
 - Design tokens (jade/sage/ivory) + custom fonts (Cormorant Garamond, Outfit,

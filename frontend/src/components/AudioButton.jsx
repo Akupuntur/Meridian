@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils";
  * `text` is the Hanzi to pronounce. `audioUrl` (optional) will be preferred
  * over TTS once real recordings are added.
  */
-export const AudioButton = ({ text, audioUrl, label, testId }) => {
+export const AudioButton = ({ text, audioUrl, meridianCode, pointNum, label, testId }) => {
   const [state, setState] = useState("idle"); // idle | loading | playing
   const stopRef = useRef(null);
 
@@ -38,6 +38,8 @@ export const AudioButton = ({ text, audioUrl, label, testId }) => {
     const controller = await playPronunciation({
       text,
       audioUrl,
+      meridianCode,
+      pointNum,
       onStart: () => setState("playing"),
       onEnd: () => setState("idle"),
       onError: (err) => {

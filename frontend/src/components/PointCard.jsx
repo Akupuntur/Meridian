@@ -40,6 +40,8 @@ export const PointCard = ({ meridianCode, point }) => {
         <AudioButton
           text={point.hanzi}
           audioUrl={point.audioUrl}
+          meridianCode={meridianCode}
+          pointNum={point.num}
           label={`Putar pelafalan ${point.pinyin}`}
           testId={`audio-button-${fullCode}`}
         />
