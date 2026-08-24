@@ -1,0 +1,35 @@
+{
+  "summary": "Verified regenerated Brian (mature male) audio batch end-to-end. Backend: 9/9 pytest tests pass (audio list count, byte sizes, idempotent generate, teaching-script pattern with break tags & syllable ellipses, voice_id=nPczCjzI2devNBz1zQrb, model=eleven_multilingual_v2, MP3 magic-byte validation). Frontend: all 5 wired points (LU7, LI4, ST36, SP6, DU20) fetch the correct /audio/<CODE>-<NUM>.mp3, transition to aria-pressed=true with 'Memutar…' label and coral color state, no toast. Unwired LU1 correctly issues NO MP3 request and falls back to the 'Audio tidak tersedia di perangkat ini' Sonner toast in the headless (no zh-CN voice) environment. audioSources.js contains exactly the 5 expected keys.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {"ui_bugs": [], "integration_issues": [], "design_issues": []},
+  "test_report_links": [
+    "/app/backend/tests/test_audio_batch.py",
+    "/app/test_reports/pytest/pytest_results.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "audio_router.py is well-structured (~290 lines) and cleanly separates script builder, voice settings, synth I/O and endpoints. No refactor needed at current size.",
+    "MongoDB ObjectId not involved in audio endpoints — no serialization concerns.",
+    "resolveAudioUrl falls back to null → speakHanzi(); unwired points correctly hit TTS path and NEVER attempt an MP3 fetch — verified via network sniff on LU1.",
+    "Consider adding a Cache-Control header (immutable) on /audio/*.mp3 for production, since files are content-addressed and change rarely (non-blocking suggestion).",
+    "AUDIO_OUTPUT_DIR writes into /app/frontend/public/audio — works with CRA dev server; note that production build must include these files in build/ output (non-blocking)."
+  ],
+  "updated_files": ["/app/backend/tests/test_audio_batch.py"],
+  "success_rate": {"backend": "100% (9/9)", "frontend": "100% (5/5 wired + LU1 fallback)"},
+  "test_credentials": "N/A",
+  "seed_data_creation": "None — 5 MP3s already regenerated and on disk. Idempotent POST /api/audio/generate with force=false was used (0 generated, 5 skipped_exists) — no ElevenLabs quota consumed.",
+  "audio_file_sizes_bytes": {
+    "LU-7": 143822,
+    "LI-4": 117072,
+    "ST-36": 191887,
+    "SP-6": 176422,
+    "DU-20": 147583
+  },
+  "voice_verified": {"voice_id": "nPczCjzI2devNBz1zQrb", "model_id": "eleven_multilingual_v2", "note": "Brian, mature male, deep resonant comforting"},
+  "sample_script_LU7": "LU 7. <break time=\"0.9s\" /> 列缺。 <break time=\"0.9s\" /> Liè... Quē. <break time=\"0.7s\" /> 列缺。 <break time=\"0.5s\" /> Liè Quē.",
+  "sample_script_ST36_contains": "Zú... Sān... Lǐ.",
+  "mp3_magic_bytes": "All 5 files start with ID3 header, content-type audio/mpeg, sizes 117KB–192KB (well above the 40KB threshold; previous Aria batch was ~15KB)",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "5-point Brian audio batch is fully verified. If future iterations add more points, extend EXPECTED_KEYS and POINTS in /app/backend/tests/test_audio_batch.py. Do NOT call POST /api/audio/generate with force=true unless quota regeneration is explicitly requested — files are idempotent. Frontend audioSources.js is the source-of-truth static map; each new wired key must have a matching MP3 in /app/frontend/public/audio/."
+}

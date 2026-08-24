@@ -7,15 +7,27 @@ Audio generation endpoints for TCM point pronunciation.
   /app/frontend/public/audio) so the React app can serve them as static
   assets at /audio/<CODE>-<NUM>.mp3.
 - Generation is idempotent: existing files are skipped unless `force=True`.
+
+Teaching-style script:
+    "<CODE> <NUM>."   pause 0.9s
+    "<HANZI>."        pause 0.9s
+    "<pinyin>."       pause 0.7s      (slow, syllable-separated)
+    "<HANZI>."        pause 0.5s      (repeat)
+    "<pinyin>."                         (repeat)
+
+Voice tuned for mature male teaching narration: slower speed, moderate
+stability, slight style so the Mandarin tones remain expressive.
 """
 
 from __future__ import annotations
 
 import logging
 import os
+import re
 from pathlib import Path
 from typing import List, Literal, Optional
 
+from elevenlabs import VoiceSettings
 from elevenlabs.client import ElevenLabs
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
@@ -25,14 +37,27 @@ logger = logging.getLogger(__name__)
 AUDIO_OUTPUT_DIR = Path(os.environ.get("AUDIO_OUTPUT_DIR", "/app/frontend/public/audio"))
 AUDIO_OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
-DEFAULT_VOICE_ID = os.environ.get("ELEVENLABS_VOICE_ID", "9BWtsMINqrJLrRacOk9x")  # Aria
+DEFAULT_VOICE_ID = os.environ.get("ELEVENLABS_VOICE_ID", "nPczCjzI2devNBz1zQrb")  # Brian
 DEFAULT_MODEL_ID = os.environ.get("ELEVENLABS_MODEL_ID", "eleven_multilingual_v2")
+
+# Teaching-voice defaults (slow, calm, deliberate).
+DEFAULT_VOICE_SETTINGS = {
+    "stability": 0.65,
+    "similarity_boost": 0.80,
+    "style": 0.15,
+    "use_speaker_boost": True,
+    "speed": 0.80,  # 0.7 – 1.2 supported by multilingual v2
+}
 
 
 class PointGenerationRequest(BaseModel):
     code: str = Field(..., description="Meridian code, e.g. 'LU'")
     num: int = Field(..., ge=1, description="Point number, e.g. 7")
     hanzi: str = Field(..., min_length=1, description="Chinese characters to synthesize")
+    pinyin: Optional[str] = Field(
+        default=None,
+        description="Pinyin with tone marks; included in the teaching script when provided.",
+    )
 
 
 class GenerateBatchRequest(BaseModel):
@@ -40,6 +65,10 @@ class GenerateBatchRequest(BaseModel):
     voice_id: Optional[str] = None
     model_id: Optional[str] = None
     force: bool = Field(default=False, description="Regenerate even if MP3 already exists")
+    stability: Optional[float] = None
+    similarity_boost: Optional[float] = None
+    style: Optional[float] = None
+    speed: Optional[float] = None
 
 
 class PointGenerationResult(BaseModel):
@@ -51,6 +80,7 @@ class PointGenerationResult(BaseModel):
     status: Literal["generated", "skipped_exists", "error"]
     error: Optional[str] = None
     bytes: Optional[int] = None
+    script: Optional[str] = None
 
 
 class GenerateBatchResponse(BaseModel):
@@ -87,18 +117,73 @@ def _mp3_path(code: str, num: int) -> Path:
     return AUDIO_OUTPUT_DIR / f"{code.upper()}-{num}.mp3"
 
 
+# ---------------------------------------------------------------------------
+# Teaching-script builder
+# ---------------------------------------------------------------------------
+
+def _slow_pinyin(pinyin: str) -> str:
+    """Insert an ellipsis between syllables so the TTS reads them separately.
+
+    Example: 'Zú Sān Lǐ' -> 'Zú... Sān... Lǐ'
+    """
+    if not pinyin:
+        return ""
+    syllables = [s for s in re.split(r"\s+", pinyin.strip()) if s]
+    return "... ".join(syllables)
+
+
+def build_teaching_script(code: str, num: int, hanzi: str, pinyin: Optional[str]) -> str:
+    """Build the paced teaching-mode script for one point.
+
+    Structure (matches user spec):
+      <CODE> <NUM>.  <break 0.9s>
+      <HANZI>.       <break 0.9s>
+      <pinyin slow>. <break 0.7s>
+      <HANZI>.       <break 0.5s>
+      <pinyin>.
+
+    ElevenLabs multilingual v2 honours <break time="X.Xs" /> up to ~3s and
+    total silence up to ~5s per request.
+    """
+    parts: List[str] = []
+    parts.append(f"{code.upper()} {num}.")
+    parts.append('<break time="0.9s" />')
+    parts.append(f"{hanzi}。")
+    parts.append('<break time="0.9s" />')
+    if pinyin:
+        parts.append(f"{_slow_pinyin(pinyin)}.")
+        parts.append('<break time="0.7s" />')
+        parts.append(f"{hanzi}。")
+        parts.append('<break time="0.5s" />')
+        parts.append(f"{pinyin}.")
+    else:
+        parts.append(f"{hanzi}。")
+    return " ".join(parts)
+
+
+def _build_voice_settings(payload: GenerateBatchRequest) -> VoiceSettings:
+    settings = dict(DEFAULT_VOICE_SETTINGS)
+    for k in ("stability", "similarity_boost", "style", "speed"):
+        v = getattr(payload, k)
+        if v is not None:
+            settings[k] = v
+    return VoiceSettings(**settings)
+
+
 def _synthesize_to_file(
     client: ElevenLabs,
-    hanzi: str,
+    text: str,
     voice_id: str,
     model_id: str,
+    voice_settings: VoiceSettings,
     out_path: Path,
 ) -> int:
     audio_iter = client.text_to_speech.convert(
-        text=hanzi,
+        text=text,
         voice_id=voice_id,
         model_id=model_id,
         output_format="mp3_44100_128",
+        voice_settings=voice_settings,
     )
     total = 0
     with out_path.open("wb") as f:
@@ -117,6 +202,7 @@ async def generate_batch(payload: GenerateBatchRequest) -> GenerateBatchResponse
 
     voice_id = payload.voice_id or DEFAULT_VOICE_ID
     model_id = payload.model_id or DEFAULT_MODEL_ID
+    voice_settings = _build_voice_settings(payload)
     client = _get_client()
 
     results: List[PointGenerationResult] = []
@@ -125,6 +211,7 @@ async def generate_batch(payload: GenerateBatchRequest) -> GenerateBatchResponse
     for p in payload.points:
         out_path = _mp3_path(p.code, p.num)
         url = f"/audio/{out_path.name}"
+        script = build_teaching_script(p.code, p.num, p.hanzi, p.pinyin)
 
         if out_path.exists() and not payload.force:
             skipped += 1
@@ -137,12 +224,15 @@ async def generate_batch(payload: GenerateBatchRequest) -> GenerateBatchResponse
                     url=url,
                     status="skipped_exists",
                     bytes=out_path.stat().st_size,
+                    script=script,
                 )
             )
             continue
 
         try:
-            written = _synthesize_to_file(client, p.hanzi, voice_id, model_id, out_path)
+            written = _synthesize_to_file(
+                client, script, voice_id, model_id, voice_settings, out_path
+            )
             generated += 1
             results.append(
                 PointGenerationResult(
@@ -153,12 +243,12 @@ async def generate_batch(payload: GenerateBatchRequest) -> GenerateBatchResponse
                     url=url,
                     status="generated",
                     bytes=written,
+                    script=script,
                 )
             )
         except Exception as exc:  # noqa: BLE001
             errors += 1
             logger.exception("ElevenLabs generation failed for %s%s", p.code, p.num)
-            # Clean up partial file to keep idempotency reliable.
             if out_path.exists():
                 try:
                     out_path.unlink()
@@ -173,6 +263,7 @@ async def generate_batch(payload: GenerateBatchRequest) -> GenerateBatchResponse
                     url=url,
                     status="error",
                     error=str(exc),
+                    script=script,
                 )
             )
 
@@ -190,6 +281,6 @@ async def generate_batch(payload: GenerateBatchRequest) -> GenerateBatchResponse
 async def list_audio() -> AudioListResponse:
     items: List[AudioListItem] = []
     for f in sorted(AUDIO_OUTPUT_DIR.glob("*.mp3")):
-        key = f.stem  # e.g. "LU-7"
+        key = f.stem
         items.append(AudioListItem(key=key, url=f"/audio/{f.name}", bytes=f.stat().st_size))
     return AudioListResponse(items=items, total=len(items))
