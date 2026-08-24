@@ -58,6 +58,14 @@ class PointGenerationRequest(BaseModel):
         default=None,
         description="Pinyin with tone marks; included in the teaching script when provided.",
     )
+    custom_script: Optional[str] = Field(
+        default=None,
+        description=(
+            "Optional verbatim script sent to the TTS engine. When set, the "
+            "default teaching-script builder is bypassed. Useful for tuning "
+            "individual samples (e.g. syllable-isolated pronunciation drills)."
+        ),
+    )
 
 
 class GenerateBatchRequest(BaseModel):
@@ -211,7 +219,7 @@ async def generate_batch(payload: GenerateBatchRequest) -> GenerateBatchResponse
     for p in payload.points:
         out_path = _mp3_path(p.code, p.num)
         url = f"/audio/{out_path.name}"
-        script = build_teaching_script(p.code, p.num, p.hanzi, p.pinyin)
+        script = p.custom_script or build_teaching_script(p.code, p.num, p.hanzi, p.pinyin)
 
         if out_path.exists() and not payload.force:
             skipped += 1
