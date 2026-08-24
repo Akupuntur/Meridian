@@ -135,6 +135,23 @@ export const hasMandarinVoice = async () => {
   return !!pickMandarinVoice(voices);
 };
 
+// Read an inter-syllable pause override from `?pauseMs=<N>` in the URL.
+// Falls back to the provided default when the param is missing or invalid.
+// Only accepts 0–3000 ms. This exists so beta testers can A/B test pacing
+// without a redeploy.
+const readPauseMsOverride = (fallback) => {
+  if (typeof window === "undefined") return fallback;
+  try {
+    const raw = new URLSearchParams(window.location.search).get("pauseMs");
+    if (raw === null) return fallback;
+    const n = parseInt(raw, 10);
+    if (Number.isFinite(n) && n >= 0 && n <= 3000) return n;
+  } catch {
+    /* ignore */
+  }
+  return fallback;
+};
+
 // ---------------------------------------------------------------------------
 // Source resolution (MP3 preferred, TTS fallback)
 // ---------------------------------------------------------------------------
@@ -186,8 +203,9 @@ const speakHanzi = async (hanzi, { onStart, onEnd, onError }) => {
 
   // Teaching-mode delivery (classroom pace for beginner Indonesian learners):
   //   - Rate 0.55 (~55% of default) so tones are clearly audible.
-  //   - Speak each Han character as its own utterance with ~1000ms silence
-  //     between them so beginners can imitate syllable-by-syllable.
+  //   - Speak each Han character as its own utterance with a short silence
+  //     between them so the two syllables of a word stay distinguishable
+  //     without sounding disconnected.
   // Non-CJK characters (letters, digits, punctuation) are ignored — this
   // audio is a Mandarin pronunciation drill, not a bilingual read-aloud.
   const HAN_RE = /\p{Script=Han}/u;
@@ -198,7 +216,9 @@ const speakHanzi = async (hanzi, { onStart, onEnd, onError }) => {
   }
 
   const RATE = 0.55;
-  const PAUSE_MS = 1000;
+  // Inter-syllable silence in milliseconds. Override at runtime for A/B
+  // testing via URL query param: ?pauseMs=200 (accepts 0–3000).
+  const PAUSE_MS = readPauseMsOverride(300);
 
   window.speechSynthesis.cancel();
 
