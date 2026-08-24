@@ -36,15 +36,7 @@ export const SiteHeader = () => {
           </span>
         </Link>
 
-        {/* Section 2 — page purpose */}
-        <span
-          className="hidden sm:inline font-mono text-[10px] sm:text-[11px] tracking-[0.22em] uppercase text-[#A3B19B]"
-          data-testid="site-page-label"
-        >
-          Pelafalan Akupunktur
-        </span>
-
-        {/* Section 3 — scope */}
+        {/* Section 2 — scope */}
         <span className="font-mono text-[10px] sm:text-[11px] tracking-[0.22em] uppercase text-[#A3B19B]">
           14 Meridian
         </span>

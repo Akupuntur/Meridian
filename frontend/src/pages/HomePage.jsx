@@ -85,11 +85,16 @@ export const HomePage = () => {
           <MeridianGridView />
         )}
 
-        <footer className="mt-24 pt-8 border-t border-[#E2E7DE]">
-          <p className="font-body text-xs text-[#697A6D] leading-relaxed">
-            Alat pembelajaran pelafalan · nomenklatur akupunktur standar
-            (WHO). Audio dihasilkan dengan sintesis suara Mandarin bawaan
-            peramban.
+        <footer className="mt-24 pt-8 border-t border-[#E2E7DE] text-center">
+          <p className="font-body text-sm sm:text-base text-[#233127]/80 leading-relaxed">
+            Media pembelajaran pelafalan nama titik akupunktur dalam bahasa
+            Mandarin.
+          </p>
+          <p
+            className="font-body text-[11px] tracking-[0.14em] text-[#A3B19B] mt-4"
+            data-testid="site-credit"
+          >
+            Created by Hartono <span aria-hidden="true">·</span> Angkatan 98
           </p>
         </footer>
       </main>
