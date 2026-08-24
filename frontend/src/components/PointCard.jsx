@@ -2,7 +2,6 @@ import { AudioButton } from "./AudioButton";
 
 export const PointCard = ({ meridianCode, point }) => {
   const fullCode = `${meridianCode}${point.num}`;
-  const spacedCode = `${meridianCode} ${point.num}`;
 
   return (
     <article
@@ -11,7 +10,7 @@ export const PointCard = ({ meridianCode, point }) => {
     >
       <div className="flex items-start gap-5 sm:gap-6 min-w-0">
         <span
-          className="font-mono text-[11px] tracking-[0.2em] uppercase text-[#A3B19B] pt-1.5 shrink-0"
+          className="inline-flex items-center rounded-md border border-[#4A6B53]/25 px-2 py-1 font-mono text-xs sm:text-sm font-semibold text-[#4A6B53] shrink-0"
           data-testid={`point-code-${fullCode}`}
         >
           {fullCode}
@@ -29,9 +28,6 @@ export const PointCard = ({ meridianCode, point }) => {
             data-testid={`point-pinyin-${fullCode}`}
           >
             {point.pinyin}
-          </p>
-          <p className="font-mono text-[11px] tracking-[0.18em] uppercase text-[#A3B19B] mt-2">
-            {spacedCode}
           </p>
         </div>
       </div>
