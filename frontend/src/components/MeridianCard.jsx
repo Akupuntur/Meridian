@@ -21,7 +21,7 @@ export const MeridianCard = ({ meridian }) => {
 
       <div>
         <h3
-          className="font-hanzi text-4xl sm:text-[2.6rem] font-normal text-[#233127] leading-tight mb-3"
+          className="font-hanzi text-3xl sm:text-[2.15rem] font-normal text-[#233127] leading-tight mb-3"
           lang="zh-Hans"
         >
           {hanzi}
@@ -32,8 +32,10 @@ export const MeridianCard = ({ meridian }) => {
       </div>
 
       <div className="pt-5 border-t border-[#E2E7DE]/70">
-        <p className="font-body text-sm text-[#233127]">{indonesian}</p>
-        <p className="font-body text-xs text-[#697A6D] mt-0.5">
+        <p className="font-body text-base sm:text-lg font-medium text-[#233127] leading-snug">
+          {indonesian}
+        </p>
+        <p className="font-body text-xs sm:text-sm text-[#697A6D] mt-1">
           {english}
         </p>
       </div>

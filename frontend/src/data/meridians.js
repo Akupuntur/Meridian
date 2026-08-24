@@ -425,7 +425,7 @@ export const meridians = [
     code: "REN",
     hanzi: "任脉",
     pinyin: "Rèn Mài",
-    indonesian: "Meridian Ren Mai",
+    indonesian: "Meridian Ren",
     english: "Conception Vessel",
     points: [
       { num: 1, hanzi: "会阴", pinyin: "Huì Yīn" },
@@ -458,7 +458,7 @@ export const meridians = [
     code: "DU",
     hanzi: "督脉",
     pinyin: "Dū Mài",
-    indonesian: "Meridian Du Mai",
+    indonesian: "Meridian Du",
     english: "Governing Vessel",
     points: [
       { num: 1, hanzi: "长强", pinyin: "Cháng Qiáng" },
