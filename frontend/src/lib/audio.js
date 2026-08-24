@@ -184,27 +184,77 @@ const speakHanzi = async (hanzi, { onStart, onEnd, onError }) => {
     return { stop: () => {} };
   }
 
-  // Cancel anything currently speaking so buttons behave predictably.
+  // Teaching-mode delivery:
+  //   - Rate 0.65 (~65% of default) so tones are clearly audible.
+  //   - Speak each Han character as its own utterance with ~700ms silence
+  //     between them so beginners can imitate syllable-by-syllable.
+  // Non-CJK characters (letters, digits, punctuation) are ignored — this
+  // audio is a Mandarin pronunciation drill, not a bilingual read-aloud.
+  const HAN_RE = /\p{Script=Han}/u;
+  const chars = Array.from(hanzi).filter((ch) => HAN_RE.test(ch));
+  if (!chars.length) {
+    onError && onError(new Error("no-chinese-chars"));
+    return { stop: () => {} };
+  }
+
+  const RATE = 0.65;
+  const PAUSE_MS = 700;
+
   window.speechSynthesis.cancel();
 
-  const utter = new window.SpeechSynthesisUtterance(hanzi);
-  utter.voice = voice;
-  utter.lang = voice.lang || "zh-CN";
-  utter.rate = 0.85;
-  utter.pitch = 1;
-  utter.volume = 1;
+  let stopped = false;
+  let timeoutId = null;
+  let startedFired = false;
 
-  utter.onstart = () => onStart && onStart();
-  utter.onend = () => onEnd && onEnd();
-  utter.onerror = (event) => {
-    if (event && (event.error === "canceled" || event.error === "interrupted")) {
-      return; // expected when a new utterance starts
+  const stop = () => {
+    stopped = true;
+    if (timeoutId) {
+      clearTimeout(timeoutId);
+      timeoutId = null;
     }
-    onError && onError(new Error(event?.error || "speech-error"));
+    window.speechSynthesis.cancel();
   };
 
-  window.speechSynthesis.speak(utter);
-  return { stop: () => window.speechSynthesis.cancel() };
+  const speakOne = (idx) => {
+    if (stopped) return;
+    if (idx >= chars.length) {
+      onEnd && onEnd();
+      return;
+    }
+
+    const utter = new window.SpeechSynthesisUtterance(chars[idx]);
+    utter.voice = voice;
+    utter.lang = voice.lang || "zh-CN";
+    utter.rate = RATE;
+    utter.pitch = 1;
+    utter.volume = 1;
+
+    utter.onstart = () => {
+      if (!startedFired) {
+        startedFired = true;
+        onStart && onStart();
+      }
+    };
+    utter.onend = () => {
+      if (stopped) return;
+      if (idx === chars.length - 1) {
+        onEnd && onEnd();
+        return;
+      }
+      timeoutId = setTimeout(() => speakOne(idx + 1), PAUSE_MS);
+    };
+    utter.onerror = (event) => {
+      if (event && (event.error === "canceled" || event.error === "interrupted")) {
+        return; // expected when a new utterance starts / stop() called
+      }
+      onError && onError(new Error(event?.error || "speech-error"));
+    };
+
+    window.speechSynthesis.speak(utter);
+  };
+
+  speakOne(0);
+  return { stop };
 };
 
 /**
