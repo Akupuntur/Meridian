@@ -66,6 +66,10 @@ async def get_status_checks():
     
     return status_checks
 
+# Audio (ElevenLabs) sub-router — mounted under /api/audio
+from audio_router import router as audio_router
+api_router.include_router(audio_router)
+
 # Include the router in the main app
 app.include_router(api_router)
 
