@@ -32,8 +32,13 @@ ivory theme.
 - `MeridianCard`, `PointCard`, `AudioButton`, `SiteHeader` components.
 - Full dataset: 361 standard acupuncture points across 14 meridians
   (12 primary meridians + Ren Mai 24 + Du Mai 28).
-- Web Speech API integration with visual playing state (pulse) and Sonner
-  toast fallback ("Audio tidak tersedia di perangkat ini").
+- **LOCKED master audio configuration (approved 2026-02):**
+  Browser Web Speech API (native zh-CN voice), rate `0.55`, whole Hanzi word
+  spoken as ONE continuous utterance (no syllable splitting, no inter-syllable
+  pauses, no `<break>` tags), non-Han characters filtered out, strict Mandarin
+  voice picker with friendly fallback toast if no zh-CN voice is installed.
+  Applies uniformly to every point across all 14 meridians. See lock header
+  in `frontend/src/lib/audio.js`. Do not modify without explicit approval.
 - Design tokens (jade/sage/ivory) + custom fonts (Cormorant Garamond, Outfit,
   Noto Serif SC, JetBrains Mono).
 - Testing agent iteration 1: 100% pass, no failures.

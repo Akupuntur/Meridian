@@ -1,14 +1,38 @@
 // Audio system for TCM point pronunciation.
 //
+// ─── LOCKED MASTER AUDIO CONFIGURATION (approved 2026-02) ───────────────────
+// The following behaviour is the approved reference standard for the entire
+// project — do NOT change any of these without explicit user approval:
+//
+//   • Engine    : Browser Web Speech API (native TTS).
+//   • Voice     : Best available native Mandarin (zh-CN) voice on the
+//                 user's device, selected strictly by pickMandarinVoice().
+//                 Cantonese and non-Mandarin voices are rejected.
+//   • Rate      : 0.55 (slow, classroom tempo).
+//   • Pitch     : 1.0 (unchanged).
+//   • Volume    : 1.0 (unchanged).
+//   • Delivery  : The whole Hanzi word is spoken as ONE continuous utterance
+//                 (e.g. 列缺 → "lièquē"). No syllable splitting, no chained
+//                 speak() calls, no inter-syllable timeouts, no <break>s.
+//   • Filtering : Only characters matching \p{Script=Han} are voiced. Pinyin,
+//                 letters, digits, and punctuation are stripped so the drill
+//                 is pure Mandarin.
+//   • Fallback  : If no Mandarin voice is available, refuse to speak (no
+//                 English/Indonesian fallback) and surface a friendly toast.
+//   • MP3 route : Kept as an inert abstraction (resolveAudioUrl). No entries
+//                 are wired, so all 361 points always use the TTS path.
+//
+// This configuration applies uniformly to every acupuncture point across
+// all 14 meridians. No per-point overrides.
+// ────────────────────────────────────────────────────────────────────────────
+//
 // Playback priority for each acupuncture point:
 //   1. Pre-recorded MP3 (per-point `audioUrl` or entry in `audioSources.js`).
 //   2. Web Speech API using a native Mandarin (zh-CN) voice.
 //   3. If neither is available -> onError('no-mandarin-voice' | 'speech-not-supported').
 //
 // The synthesizer speaks ONLY the Hanzi string passed in. It never speaks
-// Pinyin, point codes, English, or Indonesian text. Non-Mandarin voices are
-// intentionally rejected so the app does not mispronounce Chinese characters
-// with an Indonesian or English voice.
+// Pinyin, point codes, English, or Indonesian text.
 
 import { resolveAudioSource } from "@/lib/audioSources";
 
