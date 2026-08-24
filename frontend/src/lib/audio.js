@@ -135,23 +135,6 @@ export const hasMandarinVoice = async () => {
   return !!pickMandarinVoice(voices);
 };
 
-// Read an inter-syllable pause override from `?pauseMs=<N>` in the URL.
-// Falls back to the provided default when the param is missing or invalid.
-// Only accepts 0–3000 ms. This exists so beta testers can A/B test pacing
-// without a redeploy.
-const readPauseMsOverride = (fallback) => {
-  if (typeof window === "undefined") return fallback;
-  try {
-    const raw = new URLSearchParams(window.location.search).get("pauseMs");
-    if (raw === null) return fallback;
-    const n = parseInt(raw, 10);
-    if (Number.isFinite(n) && n >= 0 && n <= 3000) return n;
-  } catch {
-    /* ignore */
-  }
-  return fallback;
-};
-
 // ---------------------------------------------------------------------------
 // Source resolution (MP3 preferred, TTS fallback)
 // ---------------------------------------------------------------------------
@@ -201,80 +184,41 @@ const speakHanzi = async (hanzi, { onStart, onEnd, onError }) => {
     return { stop: () => {} };
   }
 
-  // Teaching-mode delivery (classroom pace for beginner Indonesian learners):
+  // Teaching-mode delivery for beginner Indonesian learners:
   //   - Rate 0.55 (~55% of default) so tones are clearly audible.
-  //   - Speak each Han character as its own utterance with a short silence
-  //     between them so the two syllables of a word stay distinguishable
-  //     without sounding disconnected.
-  // Non-CJK characters (letters, digits, punctuation) are ignored — this
-  // audio is a Mandarin pronunciation drill, not a bilingual read-aloud.
+  //   - The full Chinese word is sent to the engine as ONE utterance so it
+  //     is spoken as one continuous phonetic unit (e.g. 列缺 -> "lièquē"),
+  //     NOT split into disconnected syllables. Slow speech ≠ pauses.
+  //   - Non-CJK characters (letters, digits, punctuation) are filtered out
+  //     so the drill remains a pure Mandarin pronunciation drill.
   const HAN_RE = /\p{Script=Han}/u;
-  const chars = Array.from(hanzi).filter((ch) => HAN_RE.test(ch));
-  if (!chars.length) {
+  const spoken = Array.from(hanzi).filter((ch) => HAN_RE.test(ch)).join("");
+  if (!spoken) {
     onError && onError(new Error("no-chinese-chars"));
     return { stop: () => {} };
   }
 
-  const RATE = 0.55;
-  // Inter-syllable silence in milliseconds. Override at runtime for A/B
-  // testing via URL query param: ?pauseMs=200 (accepts 0–3000).
-  const PAUSE_MS = readPauseMsOverride(300);
-
+  // Cancel anything currently speaking so buttons behave predictably.
   window.speechSynthesis.cancel();
 
-  let stopped = false;
-  let timeoutId = null;
-  let startedFired = false;
+  const utter = new window.SpeechSynthesisUtterance(spoken);
+  utter.voice = voice;
+  utter.lang = voice.lang || "zh-CN";
+  utter.rate = 0.55;
+  utter.pitch = 1;
+  utter.volume = 1;
 
-  const stop = () => {
-    stopped = true;
-    if (timeoutId) {
-      clearTimeout(timeoutId);
-      timeoutId = null;
+  utter.onstart = () => onStart && onStart();
+  utter.onend = () => onEnd && onEnd();
+  utter.onerror = (event) => {
+    if (event && (event.error === "canceled" || event.error === "interrupted")) {
+      return; // expected when a new utterance starts / stop() called
     }
-    window.speechSynthesis.cancel();
+    onError && onError(new Error(event?.error || "speech-error"));
   };
 
-  const speakOne = (idx) => {
-    if (stopped) return;
-    if (idx >= chars.length) {
-      onEnd && onEnd();
-      return;
-    }
-
-    const utter = new window.SpeechSynthesisUtterance(chars[idx]);
-    utter.voice = voice;
-    utter.lang = voice.lang || "zh-CN";
-    utter.rate = RATE;
-    utter.pitch = 1;
-    utter.volume = 1;
-
-    utter.onstart = () => {
-      if (!startedFired) {
-        startedFired = true;
-        onStart && onStart();
-      }
-    };
-    utter.onend = () => {
-      if (stopped) return;
-      if (idx === chars.length - 1) {
-        onEnd && onEnd();
-        return;
-      }
-      timeoutId = setTimeout(() => speakOne(idx + 1), PAUSE_MS);
-    };
-    utter.onerror = (event) => {
-      if (event && (event.error === "canceled" || event.error === "interrupted")) {
-        return; // expected when a new utterance starts / stop() called
-      }
-      onError && onError(new Error(event?.error || "speech-error"));
-    };
-
-    window.speechSynthesis.speak(utter);
-  };
-
-  speakOne(0);
-  return { stop };
+  window.speechSynthesis.speak(utter);
+  return { stop: () => window.speechSynthesis.cancel() };
 };
 
 /**
