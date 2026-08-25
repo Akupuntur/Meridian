@@ -4,6 +4,7 @@ import { ArrowLeft } from "lucide-react";
 import { getMeridianByCode } from "@/data/meridians";
 import { PointCard } from "@/components/PointCard";
 import { SiteHeader } from "@/components/SiteHeader";
+import { AudioButton } from "@/components/AudioButton";
 
 export const MeridianDetailPage = () => {
   const { code } = useParams();
@@ -50,6 +51,13 @@ export const MeridianDetailPage = () => {
           >
             {meridian.pinyin}
           </p>
+          <div className="mt-5">
+            <AudioButton
+              text={meridian.hanzi}
+              label={`Putar pelafalan nama meridian ${meridian.hanzi}`}
+              testId="meridian-audio"
+            />
+          </div>
           <p className="font-body text-sm sm:text-base text-[#233127]/75 mt-5">
             <span className="text-[#233127]">{meridian.indonesian}</span>
             <span className="mx-2 text-[#A3B19B]">·</span>

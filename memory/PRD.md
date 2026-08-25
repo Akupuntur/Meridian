@@ -42,6 +42,11 @@ ivory theme.
 - Design tokens (jade/sage/ivory) + custom fonts (Cormorant Garamond, Outfit,
   Noto Serif SC, JetBrains Mono).
 - Testing agent iteration 1: 100% pass, no failures.
+- Meridian-name audio button on detail page (`MeridianDetailPage.jsx`)
+  reusing the existing `AudioButton` + locked `audio.js` config, so tapping
+  it speaks the full Meridian Chinese name (e.g. 手太阴肺经) with the same
+  rate 0.55 / zh-CN / primed-voice first-tap behaviour as the point buttons.
+  Existing point audio and layout untouched. (2026-02)
 
 ## Backlog (P1)
 - Replace TTS with high-quality pre-recorded MP3s (audioUrl field is ready).
