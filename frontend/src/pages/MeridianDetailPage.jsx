@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Link, useParams, Navigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { getMeridianByCode } from "@/data/meridians";
@@ -7,6 +8,12 @@ import { SiteHeader } from "@/components/SiteHeader";
 export const MeridianDetailPage = () => {
   const { code } = useParams();
   const meridian = getMeridianByCode(code);
+
+  // Always open a Meridian detail page at the very top — including when
+  // navigating between two different Meridian routes (`code` changes).
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [code]);
 
   if (!meridian) {
     return <Navigate to="/" replace />;
