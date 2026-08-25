@@ -44,28 +44,49 @@ export const isSpeechSupported = () =>
   typeof window.SpeechSynthesisUtterance === "function";
 
 // ---------------------------------------------------------------------------
-// Voice loading
+// Voice loading + priming
 // ---------------------------------------------------------------------------
+//
+// On mobile browsers (iOS Safari, Chrome Android), `speechSynthesis.getVoices()`
+// initially returns [] and only populates asynchronously via `voiceschanged`.
+// If the click handler awaits that async load, the browser drops the user-
+// gesture context by the time `.speak()` is finally called, and the first
+// utterance is queued but never actually vocalized.
+//
+// Fix: prime and cache the voice list as soon as this module is imported
+// (which happens at app load via the frontend bundle). By the time the user
+// taps an audio button, `cachedVoices` is already populated and `speakHanzi`
+// can call `.speak()` synchronously in the same click event.
 
-// Some browsers populate voices asynchronously (Chrome/Edge). We wait for the
-// `voiceschanged` event, poll for a short window, then resolve with whatever
-// is available so callers can decide.
-const loadVoices = () =>
-  new Promise((resolve) => {
-    if (!isSpeechSupported()) return resolve([]);
+let cachedVoices = null;
+let primePromise = null;
 
-    const initial = window.speechSynthesis.getVoices();
-    if (initial && initial.length) return resolve(initial);
+/**
+ * Kick off (or reuse) an asynchronous fetch of the browser's voice list.
+ * Once resolved, the voices are cached at module scope so subsequent calls
+ * are instantaneous.
+ * @returns {Promise<SpeechSynthesisVoice[]>}
+ */
+export const primeVoices = () => {
+  if (!isSpeechSupported()) return Promise.resolve([]);
+  if (cachedVoices && cachedVoices.length) return Promise.resolve(cachedVoices);
+  if (primePromise) return primePromise;
 
-    let settled = false;
+  primePromise = new Promise((resolve) => {
     const finish = (voices) => {
-      if (settled) return;
-      settled = true;
       window.speechSynthesis.removeEventListener("voiceschanged", onChanged);
       clearInterval(pollId);
       clearTimeout(timeoutId);
-      resolve(voices || []);
+      if (voices && voices.length) cachedVoices = voices;
+      resolve(cachedVoices || voices || []);
     };
+
+    const initial = window.speechSynthesis.getVoices();
+    if (initial && initial.length) {
+      cachedVoices = initial;
+      resolve(initial);
+      return;
+    }
 
     const onChanged = () => {
       const v = window.speechSynthesis.getVoices();
@@ -73,17 +94,28 @@ const loadVoices = () =>
     };
     window.speechSynthesis.addEventListener("voiceschanged", onChanged);
 
-    // Fallback: poll every 100ms up to ~2s. Some Safari builds never fire
-    // `voiceschanged` after the initial empty read.
+    // Some Safari builds never fire `voiceschanged` after the initial empty
+    // read — poll every 100ms as a fallback.
     const pollId = setInterval(() => {
       const v = window.speechSynthesis.getVoices();
       if (v && v.length) finish(v);
     }, 100);
 
-    const timeoutId = setTimeout(() => {
-      finish(window.speechSynthesis.getVoices() || []);
-    }, 2000);
+    const timeoutId = setTimeout(
+      () => finish(window.speechSynthesis.getVoices() || []),
+      3000
+    );
   });
+  return primePromise;
+};
+
+// Start priming as soon as the module is imported (i.e. at app load).
+if (isBrowser && isSpeechSupported()) {
+  primeVoices();
+}
+
+// Alias kept for backwards compatibility with the rest of the module.
+const loadVoices = () => primeVoices();
 
 // ---------------------------------------------------------------------------
 // Voice selection (strict Mandarin only)
@@ -200,7 +232,25 @@ const speakHanzi = async (hanzi, { onStart, onEnd, onError }) => {
     return { stop: () => {} };
   }
 
-  const voices = await loadVoices();
+  // Fast path — use the module-level cached voices (primed at app load) so
+  // this whole function stays synchronous within the click event. On mobile
+  // browsers this is what preserves the user-gesture context that
+  // `speechSynthesis.speak()` requires.
+  let voices = cachedVoices;
+  if (!voices || !voices.length) {
+    // Try one more synchronous read in case voices became available between
+    // module load and this click.
+    const now = window.speechSynthesis.getVoices();
+    if (now && now.length) {
+      cachedVoices = now;
+      voices = now;
+    } else {
+      // Truly not ready yet — wait for the priming promise. This path only
+      // hits on very cold starts before voiceschanged has fired.
+      voices = await loadVoices();
+    }
+  }
+
   const voice = pickMandarinVoice(voices);
   if (!voice) {
     // Strict rule: never speak Chinese characters with a non-Mandarin voice.
