@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="id">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>Jīng Luò · Pelafalan 14 Meridian Akupunktur</title>
+        <!--
+        Single-Page App fallback for GitHub Pages.
+        MIT Licensed — https://github.com/rafgraph/spa-github-pages
+
+        pathSegmentsToKeep = 1 because the site is served under the
+        `/14-meridian-akupunktur/` project sub-path. Any 404 URL is rewritten
+        to `/14-meridian-akupunktur/?/<encoded-original-path>`, and the
+        restore snippet in index.html turns it back into a real client-side
+        route before React Router mounts.
+        -->
+        <script type="text/javascript">
+            var pathSegmentsToKeep = 1;
+            var l = window.location;
+            l.replace(
+                l.protocol +
+                    "//" +
+                    l.hostname +
+                    (l.port ? ":" + l.port : "") +
+                    l.pathname
+                        .split("/")
+                        .slice(0, 1 + pathSegmentsToKeep)
+                        .join("/") +
+                    "/?/" +
+                    l.pathname
+                        .slice(1)
+                        .split("/")
+                        .slice(pathSegmentsToKeep)
+                        .join("/")
+                        .replace(/&/g, "~and~") +
+                    (l.search
+                        ? "&" + l.search.slice(1).replace(/&/g, "~and~")
+                        : "") +
+                    l.hash,
+            );
+        </script>
+    </head>
+    <body></body>
+</html>

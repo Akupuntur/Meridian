@@ -7,7 +7,7 @@ import MeridianDetailPage from "@/pages/MeridianDetailPage";
 function App() {
   return (
     <div className="App">
-      <BrowserRouter>
+      <BrowserRouter basename={process.env.PUBLIC_URL || "/"}>
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/meridian/:code" element={<MeridianDetailPage />} />
