@@ -29,7 +29,7 @@ export const HomePage = () => {
             className="font-heading text-4xl sm:text-5xl lg:text-6xl font-light tracking-tight text-[#233127] mt-4 leading-[1.05]"
             data-testid="home-title"
           >
-            Pelajari Pelafalan
+            Mempelajari Pelafalan
             <br />
             <span className="italic text-[#4A6B53]">
               14 Meridian Akupunktur
@@ -41,6 +41,13 @@ export const HomePage = () => {
           >
             Dengarkan pelafalan Mandarin setiap titik akupunktur dan ikuti
             pengucapannya dengan mudah.
+          </p>
+          <p
+            className="font-body text-[11px] sm:text-xs tracking-[0.18em] text-[#A3B19B] mt-8"
+            data-testid="home-credit"
+          >
+            Lembaga Pendidikan Akupuntur Tseng Kai{" "}
+            <span aria-hidden="true">·</span> Angkatan 98
           </p>
         </section>
 
