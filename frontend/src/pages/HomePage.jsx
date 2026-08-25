@@ -70,7 +70,7 @@ export const HomePage = () => {
               autoComplete="off"
               spellCheck={false}
               data-testid="search-input"
-              className="w-full pl-11 pr-11 py-3.5 sm:py-4 rounded-full border border-[#E2E7DE] bg-white font-body text-sm sm:text-base text-[#233127] placeholder:text-[#A3B19B] shadow-[0_2px_12px_rgba(74,107,83,0.04)] focus:outline-none focus:border-[#4A6B53]/50 focus:ring-4 focus:ring-[#4A6B53]/10 transition"
+              className="w-full pl-11 pr-11 py-3.5 sm:py-4 rounded-full border border-[#E2E7DE] bg-white font-body text-base text-[#233127] placeholder:text-[#A3B19B] shadow-[0_2px_12px_rgba(74,107,83,0.04)] focus:outline-none focus:border-[#4A6B53]/50 focus:ring-4 focus:ring-[#4A6B53]/10 transition"
             />
             {query && (
               <button
