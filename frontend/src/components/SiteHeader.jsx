@@ -8,45 +8,43 @@ export const SiteHeader = () => {
       data-testid="site-header"
     >
       {/*
-        Responsive layout:
-        · Mobile (below md): two rows. Row 1 = brand link (spans full width),
-          Row 2 = subtitle on the left + "14 MERIDIAN" on the right.
-        · Desktop (md+): single row identical to before — brand link on the
-          left, subtitle inline next to it, "14 MERIDIAN" on the far right.
+        Single-row layout on every viewport. Mobile just uses slightly smaller
+        typography and tighter spacing so the three elements — brand, subtitle,
+        and "14 MERIDIAN" — all fit on one line down to ~360px width.
+        Desktop (sm+) restores the original larger sizes so it looks identical
+        to the approved desktop design.
       */}
-      <div className="max-w-5xl mx-auto px-5 sm:px-8 py-4 sm:py-5 grid grid-cols-[1fr_auto] items-center gap-x-4 gap-y-1 md:grid-cols-[auto_1fr_auto]">
-        {/* Section 1 — brand */}
+      <div className="max-w-5xl mx-auto px-4 sm:px-8 py-4 sm:py-5 flex items-center justify-between gap-2 sm:gap-4">
+        {/* Brand + subtitle */}
         <Link
           to="/"
-          className="col-span-2 md:col-span-1 flex items-center gap-2.5 group min-w-0"
+          className="flex items-center gap-2 sm:gap-2.5 group min-w-0"
           data-testid="site-logo-link"
         >
-          <span className="inline-flex items-center justify-center h-8 w-8 rounded-full bg-[#4A6B53]/10 text-[#4A6B53] group-hover:bg-[#4A6B53] group-hover:text-white transition-colors flex-shrink-0">
-            <Sprout className="h-4 w-4" aria-hidden="true" />
+          <span className="inline-flex items-center justify-center h-7 w-7 sm:h-8 sm:w-8 rounded-full bg-[#4A6B53]/10 text-[#4A6B53] group-hover:bg-[#4A6B53] group-hover:text-white transition-colors flex-shrink-0">
+            <Sprout className="h-3.5 w-3.5 sm:h-4 sm:w-4" aria-hidden="true" />
           </span>
-          <span className="flex items-baseline gap-1.5">
-            <span className="font-heading text-lg sm:text-xl tracking-tight text-[#233127]">
+          <span className="flex items-baseline gap-1 sm:gap-1.5">
+            <span className="font-heading text-base sm:text-xl tracking-tight text-[#233127]">
               Jīng Luò
             </span>
             <span
-              className="font-hanzi text-sm sm:text-base text-[#4A6B53]"
+              className="font-hanzi text-xs sm:text-base text-[#4A6B53]"
               lang="zh-Hans"
             >
               经络
             </span>
           </span>
+          <span
+            className="font-body text-[10px] sm:text-xs tracking-[0.12em] sm:tracking-[0.14em] text-[#A3B19B] ml-1 sm:ml-1.5 whitespace-nowrap"
+            data-testid="site-brand-subtitle"
+          >
+            · Sistem Meridian
+          </span>
         </Link>
 
-        {/* Section 2 — subtitle */}
-        <span
-          className="justify-self-start font-body text-xs tracking-[0.14em] text-[#A3B19B] md:ml-1.5"
-          data-testid="site-brand-subtitle"
-        >
-          <span className="hidden md:inline">· </span>Sistem Meridian
-        </span>
-
-        {/* Section 3 — scope */}
-        <span className="justify-self-end font-mono text-[10px] sm:text-[11px] tracking-[0.22em] uppercase text-[#A3B19B]">
+        {/* Scope */}
+        <span className="font-mono text-[9px] sm:text-[11px] tracking-[0.16em] sm:tracking-[0.22em] uppercase text-[#A3B19B] whitespace-nowrap shrink-0">
           14 Meridian
         </span>
       </div>
