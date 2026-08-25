@@ -35,6 +35,7 @@
 // Pinyin, point codes, English, or Indonesian text.
 
 import { resolveAudioSource } from "@/lib/audioSources";
+import { applyPronunciation } from "@/lib/pronunciation";
 
 const isBrowser = typeof window !== "undefined";
 
@@ -258,6 +259,13 @@ const speakHanzi = async (hanzi, { onStart, onEnd, onError }) => {
     return { stop: () => {} };
   }
 
+  // Apply the pronunciation-correction dictionary FIRST so any ambiguous
+  // TCM characters (e.g. 俞 → 腧 for Shū, 膻 → 但 for Dàn) get swapped for
+  // unambiguous homophones before the Han-only filter runs. The upstream
+  // data (meridians.js) and the on-screen Hanzi/Pinyin are unaffected —
+  // this transformation only shapes what the TTS engine hears.
+  const corrected = applyPronunciation(hanzi);
+
   // Teaching-mode delivery for beginner Indonesian learners:
   //   - Rate 0.55 (~55% of default) so tones are clearly audible.
   //   - The full Chinese word is sent to the engine as ONE utterance so it
@@ -266,7 +274,7 @@ const speakHanzi = async (hanzi, { onStart, onEnd, onError }) => {
   //   - Non-CJK characters (letters, digits, punctuation) are filtered out
   //     so the drill remains a pure Mandarin pronunciation drill.
   const HAN_RE = /\p{Script=Han}/u;
-  const spoken = Array.from(hanzi).filter((ch) => HAN_RE.test(ch)).join("");
+  const spoken = Array.from(corrected).filter((ch) => HAN_RE.test(ch)).join("");
   if (!spoken) {
     onError && onError(new Error("no-chinese-chars"));
     return { stop: () => {} };

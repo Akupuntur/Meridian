@@ -1,0 +1,27 @@
+{
+  "summary": "Frontend-only verification of the new pronunciation-correction layer (src/lib/pronunciation.js) and its integration into src/lib/audio.js speakHanzi(). All requested checks passed: pronunciation module transforms strings correctly (24/24 Back-Shū 俞→腧 conversions, 4/4 word-level overrides, 3/3 pass-through cases). UI verification via Playwright with a stubbed zh-CN voice + intercepted SpeechSynthesisUtterance/speak confirmed 25 audio buttons across BL/LV/REN/SJ/LU meridians emit the corrected Hanzi to the TTS engine at rate=0.55, lang=zh-CN, single utterance, with the FakeMandarin voice selected via pickMandarinVoice. On-screen Hanzi and Pinyin remain the original values (肺俞/Fèi Shū, 攒竹/Cuán Zhú, 膻中/Dàn Zhōng, 行间/Xíng Jiān, 浮郄/Fú Xì, 消泺/Xiāo Luò). Search 'LU7' returns '1 hasil'. Scroll-to-top works on navigation. yarn build compiles successfully. Regression sweep: only src/lib/audio.js was modified and src/lib/pronunciation.js was added; meridians.js, PointCard.jsx, AudioButton.jsx, SiteHeader.jsx, MeridianDetailPage.jsx, HomePage.jsx are untouched.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/test_reports/iteration_5.json"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "pronunciation.js is well-documented and small; ordering (WORD_OVERRIDES first, then CHAR_OVERRIDES per char) is correct so 俞府 → 腧府 works without a whole-word entry.",
+    "applyPronunciation() is called BEFORE the \\p{Script=Han} filter in speakHanzi(), which correctly benefits both point and meridian audio, as spec required.",
+    "Locked audio config preserved: single SpeechSynthesisUtterance, utter.rate=0.55, pitch=1, volume=1, cancel() before speak, synchronous speak() within click, primeVoices/cachedVoices flow untouched.",
+    "Minor (non-blocking): CHAR_OVERRIDES uses 腧 (shù) for 俞 — spec uses 'shū' Pinyin; both readings are commonly accepted for TCM Shū points, and 腧 is deliberately mono-reading. Documented in comments, acceptable."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A (skipped per request)", "frontend": "100%"},
+  "test_credentials": "none required",
+  "seed_data_creation": "none",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "To assert the transformed text sent to TTS in a headless browser (which has no native zh-CN voice), stub window.speechSynthesis.getVoices to prepend a fake { name:'FakeMandarin', lang:'zh-CN', localService:true, default:true } voice, replace SpeechSynthesisUtterance with a plain-object factory (real utterance rejects non-native voice objects), and override speak/cancel to capture calls into window.__spoken. That pattern is proven and reusable — see iteration_5 Playwright script.",
+  "rca of the issue": "N/A — feature verification, no bug found."
+}
