@@ -17,16 +17,16 @@ export const HomePage = () => {
   );
 
   return (
-    <div className="min-h-screen bg-[#FDFBF7]">
+    <div className="min-h-screen">
       <SiteHeader />
 
-      <main className="max-w-5xl mx-auto px-5 sm:px-8 pt-14 sm:pt-20 pb-20">
+      <main className="max-w-5xl mx-auto px-5 sm:px-8 pt-6 sm:pt-20 pb-20">
         <section className="mb-10 sm:mb-14" data-testid="home-hero">
-          <span className="font-mono text-[11px] tracking-[0.24em] uppercase text-[#A3B19B]">
+          <span className="hidden sm:inline-block font-mono text-[11px] tracking-[0.24em] uppercase text-[#A3B19B]">
             经络 · Jīng Luò
           </span>
           <h1
-            className="font-heading text-4xl sm:text-5xl lg:text-6xl font-light tracking-tight text-[#233127] mt-4 leading-[1.05]"
+            className="font-heading text-4xl sm:text-5xl lg:text-6xl font-light tracking-tight text-[#233127] sm:mt-4 leading-[1.05]"
             data-testid="home-title"
           >
             Mempelajari Pelafalan

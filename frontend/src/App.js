@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Toaster } from "sonner";
 import HomePage from "@/pages/HomePage";
 import MeridianDetailPage from "@/pages/MeridianDetailPage";
+import { AtmosphereBackground } from "@/components/AtmosphereBackground";
 
 // Only apply the GitHub Pages sub-path basename when the site is actually
 // being served under it. On the Emergent preview and any root-served host
@@ -18,6 +19,7 @@ const routerBasename =
 function App() {
   return (
     <div className="App">
+      <AtmosphereBackground />
       <BrowserRouter basename={routerBasename}>
         <Routes>
           <Route path="/" element={<HomePage />} />

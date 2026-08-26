@@ -21,7 +21,7 @@ export const MeridianDetailPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#FDFBF7]">
+    <div className="min-h-screen">
       <SiteHeader />
 
       <main className="max-w-3xl mx-auto px-5 sm:px-8 pt-8 sm:pt-12 pb-24">
