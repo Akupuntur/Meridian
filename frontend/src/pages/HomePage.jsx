@@ -17,7 +17,7 @@ export const HomePage = () => {
   );
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen relative z-10">
       <SiteHeader />
 
       <main className="max-w-5xl mx-auto px-5 sm:px-8 pt-6 sm:pt-20 pb-20">
