@@ -40,7 +40,7 @@ jobs:
           CI: "false"
           # PUBLIC_URL matches package.json `homepage` and the GitHub Pages
           # project sub-path (https://<user>.github.io/14-meridian-akupunktur/).
-          PUBLIC_URL: /14-meridian-akupunktur
+          PUBLIC_URL: /Meridian
           # A harmless placeholder for the baked-in REACT_APP_BACKEND_URL —
           # the deployed static site never calls the backend (audio uses the
           # browser Web Speech API, data is bundled).
