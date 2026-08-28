@@ -36,44 +36,41 @@ export const MeridianDetailPage = () => {
 
         <header className="mb-12 sm:mb-16" data-testid="meridian-header">
           <span className="font-mono text-[11px] tracking-[0.24em] uppercase text-[#A3B19B]">
-            {meridian.code} · {meridian.points.length} titik akupunktur
+            {meridian.code} · {meridian.english} · {meridian.points.length} titik
           </span>
           <h1
-            className="font-hanzi text-5xl sm:text-6xl text-[#233127] mt-4 leading-tight"
-            lang="zh-Hans"
-            data-testid="meridian-hanzi"
+            className="font-pinyin text-3xl sm:text-5xl font-semibold text-[#233127] mt-4 leading-[1.1] tracking-tight"
+            data-testid="meridian-indonesian"
           >
-            {meridian.hanzi}
+            {meridian.indonesian}
           </h1>
           <p
-            className="font-heading text-2xl sm:text-3xl italic text-[#4A6B53] mt-2"
+            className="font-pinyin text-xl sm:text-2xl font-medium tracking-tight text-[#4A6B53] mt-3 leading-snug"
             data-testid="meridian-pinyin"
           >
             {meridian.pinyin}
           </p>
-          <div className="mt-5">
+          <p
+            className="font-hanzi text-3xl sm:text-4xl text-[#233127] mt-3 leading-tight"
+            lang="zh-Hans"
+            data-testid="meridian-hanzi"
+          >
+            {meridian.hanzi}
+          </p>
+          <div className="mt-6">
             <AudioButton
               text={meridian.hanzi}
               label={`Putar pelafalan nama meridian ${meridian.hanzi}`}
               testId="meridian-audio"
             />
           </div>
-          <p className="font-body text-sm sm:text-base text-[#233127]/75 mt-5">
-            <span className="text-[#233127]">{meridian.indonesian}</span>
-            <span className="mx-2 text-[#A3B19B]">·</span>
-            <span>{meridian.english}</span>
-            <span className="mx-2 text-[#A3B19B]">·</span>
-            <span className="font-mono text-xs tracking-[0.2em] uppercase text-[#A3B19B]">
-              {meridian.code}
-            </span>
-          </p>
         </header>
 
         <section aria-labelledby="points-title">
           <div className="flex items-baseline justify-between mb-6">
             <h2
               id="points-title"
-              className="font-heading text-xl sm:text-2xl font-medium text-[#233127]"
+              className="font-pinyin text-xl sm:text-2xl font-semibold text-[#233127]"
             >
               Titik Akupunktur
             </h2>

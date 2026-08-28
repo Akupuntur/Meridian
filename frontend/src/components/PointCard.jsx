@@ -16,19 +16,21 @@ export const PointCard = ({ meridianCode, point }) => {
           {fullCode}
         </span>
         <div className="min-w-0">
+          {/* Pinyin — primary readable name (clean sans-serif, medium) */}
+          <p
+            className="font-pinyin text-xl sm:text-2xl font-medium tracking-tight text-[#4A6B53] leading-snug"
+            data-testid={`point-pinyin-${fullCode}`}
+          >
+            {point.pinyin}
+          </p>
+          {/* Hanzi — kept large and dark for character learners */}
           <h4
-            className="font-hanzi text-3xl sm:text-[2rem] text-[#233127] leading-tight"
+            className="font-hanzi text-2xl sm:text-[1.75rem] text-[#233127] leading-tight mt-1.5"
             lang="zh-Hans"
             data-testid={`point-hanzi-${fullCode}`}
           >
             {point.hanzi}
           </h4>
-          <p
-            className="font-heading text-lg sm:text-xl italic text-[#4A6B53] mt-1"
-            data-testid={`point-pinyin-${fullCode}`}
-          >
-            {point.pinyin}
-          </p>
         </div>
       </div>
 
