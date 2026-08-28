@@ -39,7 +39,7 @@ export const MeridianDetailPage = () => {
             {meridian.code} · {meridian.english} · {meridian.points.length} titik
           </span>
           <h1
-            className="font-heading text-3xl sm:text-5xl font-semibold text-[#233127] mt-4 leading-[1.1]"
+            className="font-pinyin text-3xl sm:text-5xl font-semibold text-[#233127] mt-4 leading-[1.1] tracking-tight"
             data-testid="meridian-indonesian"
           >
             {meridian.indonesian}
@@ -70,7 +70,7 @@ export const MeridianDetailPage = () => {
           <div className="flex items-baseline justify-between mb-6">
             <h2
               id="points-title"
-              className="font-heading text-xl sm:text-2xl font-medium text-[#233127]"
+              className="font-pinyin text-xl sm:text-2xl font-semibold text-[#233127]"
             >
               Titik Akupunktur
             </h2>

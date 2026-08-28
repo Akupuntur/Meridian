@@ -38,7 +38,7 @@ export const MeridianCard = ({ meridian }) => {
 
       {/* Primary — Indonesian meridian name */}
       <h3
-        className="font-heading text-2xl sm:text-[1.75rem] font-semibold text-[#233127] leading-[1.15] mb-4"
+        className="font-pinyin text-2xl sm:text-[1.75rem] font-semibold text-[#233127] leading-[1.15] mb-4"
         data-testid={`meridian-indonesian-${code}`}
       >
         {indonesian}
