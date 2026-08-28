@@ -1,0 +1,25 @@
+{
+  "summary": "Frontend-only re-verification of the extended pronunciation-correction layer (src/lib/pronunciation.js) after adding CHAR_OVERRIDES 都→督 and updating WORD_OVERRIDES 攒竹→蹿竹. All 4 new/updated rules verified in-browser via the iteration_5 speechSynthesis stub pattern (fake zh-CN voice + captured utterances). SP2 emits 大督 (was 大都), BL2 emits 蹿竹, KI19 emits 阴督, LV6 emits 中督. All utterances have rate=0.55, lang=zh-CN, voice=FakeMandarin (selected by pickMandarinVoice), single utterance per click. Regression: BL13→肺腧, REN17→但中, LU7→列缺 (passthrough) all pass. On-screen Hanzi/Pinyin unchanged on every card (source-of-truth 大都/Dà Dū, 攒竹/Cuán Zhú, 阴都/Yīn Dū, 中都/Zhōng Dū, 肺俞/Fèi Shū, 膻中/Dàn Zhōng, 列缺/Liè Quē). Meridian-audio button (LU 手太阴肺经) still speaks with rate=0.55 lang=zh. Idle→playing→idle transitions run with no console errors. yarn build compiles successfully. Data audit of meridians.js confirms every 都 usage has Pinyin Dū (SP2, KI19, LV6, BL16 督俞 uses different char 督) — the universal CHAR_OVERRIDE 都→督 is safe.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": ["/app/test_reports/iteration_6.json"],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "pronunciation.js ordering (WORD_OVERRIDES first, then per-char CHAR_OVERRIDES) is correct — 攒竹→蹿竹 short-circuits before 都 char rule can misfire (irrelevant here anyway).",
+    "都→督 is universally safe across all 361 points because every 都 in meridians.js is authored as Dū (SP2, KI19, LV6); the single 督 in BL16 督俞 maps identity (督→督).",
+    "蹿 (cuān, 1st tone) is documented in the comment as an acoustic near-match for cuán (2nd tone). Tone is off by one but the c-initial and nucleus are correct — best available single-reading char, acceptable per spec.",
+    "No regressions: locked audio config preserved — single SpeechSynthesisUtterance, rate 0.55, cancel() before speak, primed voice cache, strict pickMandarinVoice."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A (skipped per request)", "frontend": "100%"},
+  "test_credentials": "none required",
+  "seed_data_creation": "none",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "The iteration_5 speechSynthesis stub pattern (fake zh-CN voice prepended to getVoices, plain-object SpeechSynthesisUtterance factory, speak/cancel captured into window.__spoken) works reliably in headless Chromium and was reused verbatim here. Only src/lib/pronunciation.js was modified this iteration; audio.js, AudioButton.jsx, PointCard.jsx, MeridianCard.jsx, SiteHeader.jsx, HomePage.jsx, MeridianDetailPage.jsx, meridians.js are untouched.",
+  "rca of the issue": "N/A — feature verification, all 4 new/updated dictionary rules land correctly at the TTS engine."
+}

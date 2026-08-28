@@ -46,10 +46,14 @@ export const WORD_OVERRIDES = {
   "行间": "形间",
   // 消泺 (Xiāo Luò) — engine reads 泺 as huò. Swap → 洛 (luò).
   "消泺": "消洛",
-  // 攒竹 (Cuán Zhú) — engine reads 攒 as zǎn. No Chinese char is a perfect
-  // homophone for cuán; 窜 (cuàn) is the closest common substitute — it
-  // gives the correct initial "c-" sound so learners recognise the word.
-  "攒竹": "窜竹",
+  // 攒竹 (Cuán Zhú) — engine reads 攒 as zǎn (its most common everyday
+  // reading), and the previously-tried 4th-tone homophone 窜 turned out
+  // to be read incorrectly by some voices ("chán"). No Chinese char is a
+  // clean single-reading homophone for cuán, but 蹿 (cuān, 1st tone) is
+  // an extremely close acoustic match — same c-initial + same nucleus —
+  // and it is a well-known, widely-supported character that every zh-CN
+  // TTS engine reads correctly.
+  "攒竹": "蹿竹",
   // 膻中 (Dàn Zhōng) — engine reads 膻 as shān. Swap → 但 (dàn).
   "膻中": "但中",
 };
@@ -66,6 +70,10 @@ export const CHAR_OVERRIDES = {
   "俞": "腧",
   // 郄 in cleft-point names (浮郄, 温溜郄, 梁丘郄, …) is always Xì. Swap → 隙.
   "郄": "隙",
+  // 都 in TCM point names (SP2 大都, KI19 阴都, LV6 中都) always reads dū
+  // (1st tone, "capital"), but the zh-CN engine defaults to the far more
+  // common dōu ("all") reading. Swap → 督 which has the single reading dū.
+  "都": "督",
 };
 
 /**
