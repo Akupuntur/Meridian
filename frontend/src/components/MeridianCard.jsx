@@ -44,9 +44,9 @@ export const MeridianCard = ({ meridian }) => {
         {indonesian}
       </h3>
 
-      {/* Pinyin */}
+      {/* Pinyin — clean sans-serif, medium weight, high-legibility */}
       <p
-        className="font-heading text-lg sm:text-xl italic text-[#4A6B53] leading-snug mb-3"
+        className="font-body text-lg sm:text-xl font-medium tracking-tight text-[#4A6B53] leading-snug mb-3"
         data-testid={`meridian-pinyin-${code}`}
       >
         {pinyin}
