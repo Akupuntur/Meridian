@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400;1,500&family=Outfit:wght@300;400;500;600&family=Noto+Serif+SC:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,500&family=Outfit:wght@300;400;500;600&family=Inter:wght@400;500;600;700&family=Noto+Serif+SC:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap");
 
 @tailwind base;
 @tailwind components;
@@ -64,6 +64,21 @@ code {
     }
     .font-body {
         font-family: "Outfit", sans-serif;
+    }
+    /*
+     * Dedicated Pinyin font.
+     * Inter renders Latin Extended diacritics (ā á ǎ à, etc.) with
+     * consistent stroke weight — the tone marks sit naturally on the
+     * base letter and never look thinner or detached. We also nudge
+     * text-rendering / font-features so kerning + diacritics compose
+     * cleanly on every browser.
+     */
+    .font-pinyin {
+        font-family: "Inter", "Outfit", sans-serif;
+        font-feature-settings: "kern" 1, "liga" 1, "calt" 1, "ss01" 1;
+        text-rendering: optimizeLegibility;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
     }
     .font-hanzi {
         font-family: "Noto Serif SC", "Songti SC", "SimSun", serif;

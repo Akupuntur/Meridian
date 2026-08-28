@@ -38,7 +38,7 @@ export const MeridianCard = ({ meridian }) => {
 
       {/* Primary — Indonesian meridian name */}
       <h3
-        className="font-heading text-2xl sm:text-[1.75rem] font-medium text-[#233127] leading-[1.15] mb-4"
+        className="font-heading text-2xl sm:text-[1.75rem] font-semibold text-[#233127] leading-[1.15] mb-4"
         data-testid={`meridian-indonesian-${code}`}
       >
         {indonesian}
@@ -46,7 +46,7 @@ export const MeridianCard = ({ meridian }) => {
 
       {/* Pinyin — clean sans-serif, medium weight, high-legibility */}
       <p
-        className="font-body text-lg sm:text-xl font-medium tracking-tight text-[#4A6B53] leading-snug mb-3"
+        className="font-pinyin text-lg sm:text-xl font-medium tracking-tight text-[#4A6B53] leading-snug mb-3"
         data-testid={`meridian-pinyin-${code}`}
       >
         {pinyin}

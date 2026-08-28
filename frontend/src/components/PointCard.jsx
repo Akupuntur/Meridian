@@ -18,7 +18,7 @@ export const PointCard = ({ meridianCode, point }) => {
         <div className="min-w-0">
           {/* Pinyin — primary readable name (clean sans-serif, medium) */}
           <p
-            className="font-body text-xl sm:text-2xl font-medium tracking-tight text-[#4A6B53] leading-snug"
+            className="font-pinyin text-xl sm:text-2xl font-medium tracking-tight text-[#4A6B53] leading-snug"
             data-testid={`point-pinyin-${fullCode}`}
           >
             {point.pinyin}
